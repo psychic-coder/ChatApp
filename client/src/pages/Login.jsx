@@ -9,23 +9,33 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import {CameraAlt as CameraAltIcon} from "@mui/icons-material"
+import { CameraAlt as CameraAltIcon } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "../components/styles/StyledComponent";
-import {useInputValidation} from "6pp";
-
+import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
+import { usernameValidator } from "../utils/validator";
 
 function Login() {
-    
   const [isLogin, setIsLogin] = useState(true);
   const toggleLogin = () => setIsLogin((prev) => !prev);
 
-
   //the useInputValidation is similar to the useState hook
-  const name= useInputValidation("");
-  const bio= useInputValidation("");
-  const username= useInputValidation("");
-  const password= useInputValidation("");
+  const name = useInputValidation("");
+  const bio = useInputValidation("");
+  const username = useInputValidation("", usernameValidator);
+  const password = useInputValidation();
+  const avatar = useFileHandler("single");
+  const handleSignup=(e)=>{
+    e.preventDefault();
+  }
+  const handleLogin=(e)=>{
+    e.preventDefault();
+  }
   return (
+    <div
+    style={{
+        backgroundImage:"linear-gradient(rgba(200,200,200,0.5),rgba(120,110,220,0.5))",
+    }}
+    >
     <Container
       component={"main"}
       maxWidth="xs"
@@ -53,6 +63,7 @@ function Login() {
                 width: "100%",
                 marginTop: "1rem",
               }}
+              onSubmit={handleLogin}
             >
               <TextField
                 required
@@ -63,6 +74,7 @@ function Login() {
                 value={username.value}
                 onChange={username.changeHandler}
               />
+
               <TextField
                 required
                 fullWidth
@@ -105,6 +117,7 @@ function Login() {
                 width: "100%",
                 marginTop: "1rem",
               }}
+              onSubmit={handleSignup}
             >
               <Stack position={"relative"} width={"10rem"} margin={"auto"}>
                 <Avatar
@@ -113,24 +126,39 @@ function Login() {
                     height: "10rem",
                     objectFit: "contain",
                   }}
+                  src={avatar.preview}
                 />
+                {avatar.error && (
+                  <Typography
+                    m={"1rem auto"}
+                    color="error"
+                    variant="caption"
+                    display={"block"}
+                    width={"fit-content"}
+                  >
+                    {avatar.error}
+                  </Typography>
+                )}
                 <IconButton
-                sx={{
-                    position:"absolute",
-                    bottom:"0",
-                    right:"0",
-                    colo:"white",
-                    bgcolor:"rgba(0,0,0,0.5)",
-                    ":hover":{
-                        bgcolor:"rgba(0,0,0,0.7)"
-                    }
-                }}
-                component="label"
+                  sx={{
+                    position: "absolute",
+                    bottom: "0",
+                    right: "0",
+                    colo: "white",
+                    bgcolor: "rgba(0,0,0,0.5)",
+                    ":hover": {
+                      bgcolor: "rgba(0,0,0,0.7)",
+                    },
+                  }}
+                  component="label"
                 >
-                    <>
-                    <CameraAltIcon/>
-                    <VisuallyHiddenInput type="file" />
-                    </>
+                  <>
+                    <CameraAltIcon />
+                    <VisuallyHiddenInput
+                      type="file"
+                      onChange={avatar.changeHandler}
+                    />
+                  </>
                 </IconButton>
               </Stack>
               <TextField
@@ -151,6 +179,11 @@ function Login() {
                 value={username.value}
                 onChange={username.changeHandler}
               />
+              {username.error && (
+                <Typography color="error" variant="caption">
+                  {username.error}
+                </Typography>
+              )}
               <TextField
                 required
                 fullWidth
@@ -170,6 +203,11 @@ function Login() {
                 value={password.value}
                 onChange={password.changeHandler}
               />
+              {password.error && (
+                <Typography color="error" variant="caption">
+                  {password.error}
+                </Typography>
+              )}
               <Button
                 sx={{
                   marginTop: "1rem",
@@ -197,6 +235,7 @@ function Login() {
         )}
       </Paper>
     </Container>
+    </div>
   );
 }
 

@@ -1,4 +1,6 @@
 import React from 'react'
+import AppLayout from '../components/styles/layout/AppLayout'
+
 
 function Chat() {
   return (
@@ -6,4 +8,4 @@ function Chat() {
   )
 }
 
-export default Chat
+export default AppLayout()(Chat)

@@ -1,9 +1,15 @@
 import React from 'react'
+import AppLayout from '../components/styles/layout/AppLayout'
+import { Typography } from "@mui/material";
 
-function Home() {
+const Home = () => {
   return (
-    <div>Home</div>
-  )
-}
+    
+      <Typography p={"2rem"} variant="h5" textAlign={"center"}>
+        Home
+      </Typography>
+    
+  );
+};
 
-export default Home
+export default AppLayout()(Home)
