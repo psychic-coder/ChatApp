@@ -1,6 +1,7 @@
 import React, { memo } from "react";
-import { Link } from "../StyledComponent";
-import { Stack, Typography } from "@mui/material";
+import { Link } from "../../../styles/StyledComponent";
+import { Box, Stack, Typography } from "@mui/material";
+import AvatarCard from "./AvatarCard";
 
 const ChatItem = ({
   avatar = [],
@@ -11,15 +12,20 @@ const ChatItem = ({
   isOnline,
   newMessageAlert,
   index = 0,
-  handleDeleteChatOpen,
+  handleDeleteChat,
 }) => {
-    /*onContextMenu Prop:
+  /*onContextMenu Prop:
 The onContextMenu prop is added to the element you want to attach the context menu event to.
 When a user right-clicks on this element, the function specified in the prop will be executed.*/
 
-
   return (
-    <Link to={`/chat/${_id}`} onContextMenu={(e)=>handleDeleteChatOpen(e,_id,groupChat)}>
+    <Link
+      sx={{
+        padding: "0",
+      }}
+      to={`/chat/${_id}`}
+      onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)}
+    >
       <div
         style={{
           display: "flex",
@@ -31,7 +37,7 @@ When a user right-clicks on this element, the function specified in the prop wil
           position: "relative",
         }}
       >
-        {/* Avatar Card */}
+       <AvatarCard avatar={avatar}/>
         <Stack>
           <Typography>{name}</Typography>
           {newMessageAlert && (
@@ -56,7 +62,6 @@ When a user right-clicks on this element, the function specified in the prop wil
     </Link>
   );
 };
-
 
 //as this function is to be mapped we wrap it on memo
 export default memo(ChatItem);
