@@ -30,7 +30,7 @@ export const sampleUsers = [
     avatar:
       "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
     name: "John Boi",
-    _id: "1",
+    _id: "2",
   },
 ];
 export const sampleNotifications = [
@@ -51,3 +51,32 @@ export const sampleNotifications = [
     _id: "2",
   },
 ];
+export const sampleMessage = [
+  {
+    attachments:[],
+    content:"efgvw",
+    _id:"hfvkwcwkc",
+    sender:{
+      _id:"user._id",
+      name:"heroi",
+    },
+    chat:"chatId",
+    createdAt:"2024-05-23T00:00:00.000Z", 
+  },
+  {
+    attachments:[{
+      public_id:"fseda 2",
+      url:"https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+    },],
+    content:"",
+    _id:"hfvkwcwkc 2",
+    sender:{
+      _id:"dgddjgdj",
+      name:"heroi 2",
+    },
+    chat:"chatId 2",
+    createdAt:"2024-05-23T00:00:00.000Z", 
+  },
+];
+
+
