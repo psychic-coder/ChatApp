@@ -8,13 +8,15 @@ const Login = lazy(() => import("./pages/Login"));
 const Groups = lazy(() => import("./pages/Groups"));
 const Chat = lazy(() => import("./pages/Chat"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 
 const user = true;
 
 function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<LayoutLoader/>}>
+      <Suspense fallback={<LayoutLoader />}>
         <Routes>
           <Route element={<ProtectRoute user={user} />}>
             <Route path="/" element={<Home />} />
@@ -29,6 +31,9 @@ function App() {
               </ProtectRoute>
             }
           />
+
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
 
           {/*fo any random route page we go to the notfound page*/}
           <Route path="*" element={<NotFound />} />
