@@ -3,28 +3,36 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import userRoute from "../api/routes/user.routes.js"
+import { connectDB } from "../api/utils/features.js";
+
 
 import dotenv from "dotenv";
+import { errorMiddleware } from "./middlewares/error.js";
 
 dotenv.config();
-
+//mongoURI=process.env.MONGO_URI;
+connectDB("mongodb://localhost:27017/ChatterBox");
 
 var app = express();
 
 app.use(logger('dev'));
+//express.json is used to access the json data from the frontend
 app.use(express.json());
+//express.urlencoded is used when we send form data from the frontend
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
 
-app.use("/user",userRoute)
+app.use("/user", userRoute)
 
 app.get("/",(req,res)=>{
   res.send("Hello  WORLD !")
 })
 
 
+
+app.use(errorMiddleware)
 
 const port =5000;
 app.listen(port, () => {
@@ -33,17 +41,6 @@ app.listen(port, () => {
 
 
 
-
-
-  app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    return res.status(statusCode).json({
-      success: false,
-      statusCode,
-      message,
-    });
-  });
 
 
 export default app;
