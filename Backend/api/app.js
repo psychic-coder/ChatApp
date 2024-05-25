@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import userRoute from "../api/routes/user.routes.js"
 
 import dotenv from "dotenv";
 
@@ -17,10 +18,20 @@ app.use(cookieParser());
 
 
 
+app.use("/user",userRoute)
+
+app.get("/",(req,res)=>{
+  res.send("Hello  WORLD !")
+})
+
+
+
 const port =5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
+
+
 
 
 
