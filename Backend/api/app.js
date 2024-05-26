@@ -9,7 +9,8 @@ import { connectDB } from "../api/utils/features.js";
 
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
-import { createUser } from "./seeders/user.js";
+import { createMessagesInAChat } from "./seeders/chat.js";
+
 
 dotenv.config();
 //mongoURI=process.env.MONGO_URI;
@@ -24,6 +25,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+
+// createSingleChats(10);
+// createGroupChats(10);
+//createMessagesInAChat("6652fad5328fb55d8d43b9dc",50)
 
 
 app.use("/user", userRoute)

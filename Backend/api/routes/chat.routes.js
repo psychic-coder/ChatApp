@@ -10,7 +10,8 @@ import {
   sendAttachments,
   getChatDetails,
   renameGroup,
-  deleteChat
+  deleteChat,
+  getMessages
 } from "../controllers/chat.controllers.js";
 import { attachmentsMulter } from "../middlewares/multer.js";
 const router = express.Router();
@@ -26,5 +27,6 @@ router.post("/message",attachmentsMulter,sendAttachments)
 
 //the below is the method for chaining 
 router.route("/:id").get(getChatDetails).put(renameGroup).delete(deleteChat);
+router.get("/message/:id",getMessages)
 
 export default router;

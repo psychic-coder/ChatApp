@@ -1,5 +1,6 @@
+import { Chat } from "../models/chat.js";
 import { User } from "../models/user.js";
-import {faker} from "@faker-js/faker"
+import {faker, simpleFaker} from "@faker-js/faker"
 
 
 
@@ -31,3 +32,4 @@ export const createUser=async(numUsers)=>{
         console.log(error)
     }
 }
+
