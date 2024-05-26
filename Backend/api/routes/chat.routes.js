@@ -11,22 +11,48 @@ import {
   getChatDetails,
   renameGroup,
   deleteChat,
-  getMessages
+  getMessages,
 } from "../controllers/chat.controllers.js";
 import { attachmentsMulter } from "../middlewares/multer.js";
+import {
+  addMemberValidator,
+  chatIdValidator,
+  getMessagesValidator,
+  leaveGroupValidator,
+  newGroupValidator,
+  removeMemberValidator,
+  renameValidator,
+  sendAttachmentsValidator,
+  validateHandler,
+} from "../lib/validators.js";
 const router = express.Router();
 
 router.use(isAuthenticated);
-router.post("/new", newGroupChat);
+router.post("/new", newGroupValidator(), validateHandler, newGroupChat);
 router.get("/my", getMyChats);
 router.get("/my/groups", getMyGroups);
-router.put("/addmembers", addMembers);
-router.put("/removemember", removeMembers);
-router.delete("/leave/:id",leaveGroup);
-router.post("/message",attachmentsMulter,sendAttachments)
+router.put("/addmembers", addMemberValidator(), validateHandler, addMembers);
+router.put(
+  "/removemember",
+  removeMemberValidator(),
+  validateHandler,
+  removeMembers
+);
+router.delete("/leave/:id", chatIdValidator(), validateHandler, leaveGroup);
+router.post(
+  "/message",
+  attachmentsMulter,
+  sendAttachmentsValidator(),
+  validateHandler,
+  sendAttachments
+);
 
-//the below is the method for chaining 
-router.route("/:id").get(getChatDetails).put(renameGroup).delete(deleteChat);
-router.get("/message/:id",getMessages)
+//the below is the method for chaining
+router
+  .route("/:id")
+  .get(chatIdValidator(), validateHandler, getChatDetails)
+  .put(renameValidator(),validateHandler,renameGroup)
+  .delete(chatIdValidator(), validateHandler,deleteChat);
+router.get("/message/:id", chatIdValidator(), validateHandler, getMessages);
 
 export default router;

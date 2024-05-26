@@ -9,9 +9,7 @@ import { Message } from "../models/message.js";
 
 export const newGroupChat = TryCatch(async (req, res, next) => {
   const { name, members } = req.body;
-  if (members.length < 3) {
-    new ErrorHandler("Group chat must have atleast 3 members", 400);
-  }
+
   const allMembers = [...members, req.user];
 
   await Chat.create({
@@ -83,10 +81,6 @@ export const getMyGroups = TryCatch(async (req, res, next) => {
 
 export const addMembers = TryCatch(async (req, res, next) => {
   const { chatId, members } = req.body;
-
-  if (!members && members.length < 1)
-    return next(new ErrorHandler("Please provide members", 400));
-
   const chat = await Chat.findById(chatId);
   if (!chat) return next(new ErrorHandler("CHAT NOT FOUND !!!", 404));
   if (!chat.groupChat)
@@ -371,7 +365,7 @@ export const getMessages = TryCatch(async (req, res, next) => {
   const { page = 1 } = req.query;
   const skip = (page - 1) * resultPerPage;
 
-  const [messages,totalMessagesCount] = await Promise.all([
+  const [messages, totalMessagesCount] = await Promise.all([
     Message.find({ chat: chatId })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -381,11 +375,11 @@ export const getMessages = TryCatch(async (req, res, next) => {
     Message.countDocuments({ chat: chatId }),
   ]);
 
-  const totalPages=Math.ceil(totalMessagesCount/resultPerPage)||0;
+  const totalPages = Math.ceil(totalMessagesCount / resultPerPage) || 0;
 
   return res.status(200).json({
     success: true,
     messages: messages.reverse(),
-    totalPages
+    totalPages,
   });
 });
