@@ -43,6 +43,8 @@ export const getMyProfile=TryCatch(async(req,res,next)=>{
          message:" LoggedOut Successfully !!"
      });
  });
+
+
 export const logout=TryCatch(async(req,res,next)=>{
     const user= await User.findById(req.user);
  
@@ -50,4 +52,12 @@ export const logout=TryCatch(async(req,res,next)=>{
          success:true,
          user
      });
+ });
+export const searchUser=TryCatch(async(req,res,next)=>{
+    const {name}=req.query;
+
+    return res.status(200).json({
+        success:true,
+        message:name,
+    })
  });

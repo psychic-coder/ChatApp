@@ -3,11 +3,13 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import userRoute from "../api/routes/user.routes.js"
+import chatRoute from "../api/routes/chat.routes.js"
 import { connectDB } from "../api/utils/features.js";
 
 
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
+import { createUser } from "./seeders/user.js";
 
 dotenv.config();
 //mongoURI=process.env.MONGO_URI;
@@ -25,6 +27,7 @@ app.use(cookieParser());
 
 
 app.use("/user", userRoute)
+app.use("/chat", chatRoute)
 
 app.get("/",(req,res)=>{
   res.send("Hello  WORLD !")

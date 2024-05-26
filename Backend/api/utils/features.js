@@ -30,6 +30,12 @@ const sendToken = (res, user, code, message) => {
    });
 };
 
+export  const emitEvent=(req,event,users,data)=>{
+    console.log("Emitting event !",event);
+}
 
+export const  deleteFilesFromCloudinary=(req,res,next)=>{
+
+}
 
 export { sendToken, connectDB,cookieOptions};
