@@ -1,7 +1,7 @@
 
 
 import express from "express";
-import { getMyProfile, login,newUser,logout,searchUser, sendFriendRequest, getMyNotifications } from "../controllers/user.controllers.js";
+import { getMyProfile, login,newUser,logout,searchUser, sendFriendRequest, getMyNotifications, getMyFriends } from "../controllers/user.controllers.js";
 import {  singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { acceptRequestValidator, loginValidator, registerValidator,  sendRequestValidator,  validateHandler } from "../lib/validators.js";
@@ -26,6 +26,8 @@ router.get("/search",searchUser)
 router.put("/sendrequest",sendRequestValidator(),validateHandler,sendFriendRequest)
 router.put("/acceptrequest",acceptRequestValidator(),validateHandler,sendFriendRequest)
 router.get("/notifications",getMyNotifications)
+router.get("/friends",getMyFriends)
+
 
 
 

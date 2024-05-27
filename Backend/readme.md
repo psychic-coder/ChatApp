@@ -1,0 +1,1 @@
+"NODE_ENV=PRODUCTION "=>>>this is a way of setting the value of the env variables in json file ,in unix environment,in this code we have set the value of NODE_ENV to production 

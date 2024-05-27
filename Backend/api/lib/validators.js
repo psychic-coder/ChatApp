@@ -1,4 +1,4 @@
-import { body, validationResult, check, param, query } from "express-validator";
+import { body, validationResult, param, } from "express-validator";
 import { ErrorHandler } from "../utils/utility.js";
 
 /*body: Explicitly validates fields within the request body.
@@ -8,7 +8,6 @@ export const registerValidator = () => [
   body("username", "Username should not be empty ").notEmpty(),
   body("password", "Password should not be empty ").notEmpty(),
   body("bio", "Bio should not be empty ").notEmpty(),
-  check("avatar", "Please upload avatar").notEmpty(),
 ];
 export const loginValidator = () => [
   body("username", "Username should not be empty ").notEmpty(),
@@ -39,11 +38,6 @@ export const leaveGroupValidator = () => [
 ];
 export const sendAttachmentsValidator = () => [
   body("chatId", "Please enter Chat Id ").notEmpty(),
-  check("files")
-    .notEmpty()
-    .withMessage("Please upload Attachments ")
-    .isArray({ min: 1, max: 5 })
-    .withMessage("Attachmens can be between 1-5 "),
 ];
 
 export const getMessagesValidator = () => [
@@ -71,6 +65,13 @@ export const acceptRequestValidator = () => [
     .isBoolean()
     .withMessage("Accept must be boolean "),
 ];
+
+export const adminLoginValidator = () => [
+  body("secretKey", "Please Enter Secret Key").notEmpty(),
+];
+
+
+
 
 export const validateHandler = (req, res, next) => {
   const errors = validationResult(req);

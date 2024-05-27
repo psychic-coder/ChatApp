@@ -6,8 +6,14 @@ import { ErrorHandler } from "../utils/utility.js";
 import { Chat } from "../models/chat.js";
 import { Request } from "../models/request.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
+import { getOtherMember } from "../lib/helper.js";
 
-export const newUser = async (req, res, next) => {
+export const newUser = TryCatch(async (req, res, next) => {
+  const file = req.file;
+  if (!file) {
+    return next(new ErrorHandler("Please upload avatar"));
+  }
+
   const avatar = {
     public_id: "efw",
     url: "jhsfjhs",
@@ -24,7 +30,7 @@ export const newUser = async (req, res, next) => {
   });
 
   sendToken(res, user, 201, "User Created !");
-};
+});
 export const login = TryCatch(async (req, res, next) => {
   const { username, password } = req.body;
   //as in the models while creating we have made the default password select=false, so we're particularly asking for the password from the database
@@ -38,9 +44,6 @@ export const login = TryCatch(async (req, res, next) => {
 });
 
 export const getMyProfile = TryCatch(async (req, res, next) => {
-
-
-  
   const user = await User.findById(req.user);
 
   if (!user) return next(new ErrorHandler("User not found", 404));
@@ -52,9 +55,7 @@ export const getMyProfile = TryCatch(async (req, res, next) => {
 });
 
 export const logout = TryCatch(async (req, res) => {
-
-
-//we're simply setting the value of the cookie to null , overwriting the cookieOptions maxage to 0
+  //we're simply setting the value of the cookie to null , overwriting the cookieOptions maxage to 0
   return res
     .status(200)
     .cookie("access_token", "", { ...cookieOptions, maxAge: 0 })
@@ -185,7 +186,43 @@ export const getMyNotifications = TryCatch(async (req, res, next) => {
   }));
 
   return res.status(200).json({
-    success:true,
-    allRequests
-  })
+    success: true,
+    allRequests,
+  });
+});
+
+export const getMyFriends = TryCatch(async (req, res, next) => {
+  const chatId = req.query.chatId;
+  const chats = await Chat.find({
+    members: req.user,
+    groupChat: false,
+  }).populate("members", "name avatar");
+
+  const friends = chats.map(({ members }) => {
+    const otherUser = getOtherMember(members, req.user);
+    return {
+      _id: otherUser._id,
+      name: otherUser.name,
+      avatar: otherUser.avatar.url,
+    };
+  });
+
+  if (chatId) {
+    //in this below code we're using chatId , as when we want to add people to our grp , so we check whether they are already present in a group or not ,if they are not
+    //then we can add them in the grp
+    const chat = await Chat.findById({ chatId });
+    const availableFriends = friends.filter(
+      (friend) => !chat.members.includes(friend._id)
+    );
+
+    return res.status(200).json({
+      success: true,
+      friends: availableFriends,
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      friends,
+    });
+  }
 });

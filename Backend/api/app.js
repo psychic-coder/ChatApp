@@ -4,12 +4,16 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import userRoute from "../api/routes/user.routes.js"
 import chatRoute from "../api/routes/chat.routes.js"
+import adminRoute from "../api/routes/admin.routes.js"
 import { connectDB } from "../api/utils/features.js";
 
 
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
 import { createMessagesInAChat } from "./seeders/chat.js";
+
+
+
 
 
 dotenv.config();
@@ -33,6 +37,7 @@ app.use(cookieParser());
 
 app.use("/user", userRoute)
 app.use("/chat", chatRoute)
+app.use("/admin", adminRoute)
 
 app.get("/",(req,res)=>{
   res.send("Hello  WORLD !")
@@ -42,9 +47,12 @@ app.get("/",(req,res)=>{
 
 app.use(errorMiddleware)
 
+export const adminSecretKey=process.env.ADMIN_SECRET_KEY||"rohitIeeeCs96"
+
 const port =5000;
+export const envMode=process.env.NODE_ENV.trim()||"PRODUCTION";
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port} in ${envMode} mode `);
   });
 
 
