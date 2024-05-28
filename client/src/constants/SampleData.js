@@ -13,7 +13,7 @@ export const sampleChats = [
       "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
     ],
     name: "John Boi",
-    _id: "2",
+    _id: "1",
     groupChat: true,
     members: ["1", "2"],
   },
@@ -95,7 +95,7 @@ export const dashboardData = {
     {
       name: "John Dee",
       avatar:
-        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNQVToF0kswHJ_eljqp-L8XVJ1HsLfG9PxMzNnOWe3DQ&s",
       _id: "2",
       username: "johndeee",
       friends: 25,
@@ -103,6 +103,195 @@ export const dashboardData = {
     },
   ],
   chats: [
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNQVToF0kswHJ_eljqp-L8XVJ1HsLfG9PxMzNnOWe3DQ&s",
+      ],
+      _id: "1",
+      groupChat: false,
+      members: [
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "3",
+          avatar:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNQVToF0kswHJ_eljqp-L8XVJ1HsLfG9PxMzNnOWe3DQ&s",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "4",
+      groupChat: false,
+      members: [
+        {
+          _id: "23",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "24",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "5",
+      groupChat: false,
+      members: [
+        {
+          _id: "1",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "1",
+      groupChat: false,
+      members: [
+        {
+          _id: "1",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "1",
+      groupChat: false,
+      members: [
+        {
+          _id: "1",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "1",
+      groupChat: false,
+      members: [
+        {
+          _id: "1",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
+    {
+      name: "Labrador gROUP",
+      avatar: [
+        "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      ],
+      _id: "1",
+      groupChat: false,
+      members: [
+        {
+          _id: "1",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+        {
+          _id: "2",
+          avatar:
+            "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+        },
+      ],
+      totalMembers: 2,
+      totalMessages: 20,
+      creator: {
+        name: "John Doe",
+        avatar:
+          "https://images.vexels.com/media/users/3/140800/isolated/preview/86b482aaf1fec78a3c9c86b242c6ada8-man-profile-avatar.png",
+      },
+    },
     {
       name: "Labrador gROUP",
       avatar: [

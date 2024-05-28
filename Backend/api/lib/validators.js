@@ -75,12 +75,12 @@ export const adminLoginValidator = () => [
 
 export const validateHandler = (req, res, next) => {
   const errors = validationResult(req);
+
   const errorMessages = errors
     .array()
     .map((error) => error.msg)
-    .join(",");
-  console.log(errorMessages);
+    .join(", ");
 
-  if (errorMessages.isEmpty()) return next();
+  if (errors.isEmpty()) return next();
   else next(new ErrorHandler(errorMessages, 400));
 };

@@ -3,7 +3,7 @@ import { ErrorHandler } from "../utils/utility.js";
 import { TryCatch } from "./error.js";
 import { adminSecretKey } from "../app.js";
 
-export const isAuthenticated = (req, res, next) => {
+export const isAuthenticated = TryCatch((req, res, next) => {
   //in the below line we're getting hold of the accesstoken which is name access_token
   const token = req.cookies["access_token"];
   if (!token)
@@ -16,7 +16,8 @@ export const isAuthenticated = (req, res, next) => {
   req.user = decodedData._id;
 
   next();
-};
+});
+
 
 export const adminOnly = (req, res, next) => {
   const token = req.cookies["access_token_admin"];
