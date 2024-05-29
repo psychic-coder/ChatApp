@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import Header from "./Header";
 import Title from "../shared/Title";
 import { Drawer, Grid, Skeleton } from "@mui/material";
@@ -11,12 +11,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { setIsMobile } from "../../../redux/reducers/misc";
 import { toast } from "react-hot-toast";
 import { useErrors } from "../../../hooks/hook";
+import { getSocket } from "../../../socket";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const params = useParams();
     const chatId = params.chatId;
-
+    const socket=getSocket();
+  
     const { isMobile } = useSelector((state) => state.misc);
 
     const {user}=useSelector((state)=>state.auth)
@@ -47,6 +49,7 @@ const AppLayout = () => (WrappedComponent) => {
               chatId={chatId}
               handleDeleteChat={handleDeleteChat}
               w="70vw"
+             
             />
           </Drawer>
         )}
@@ -71,7 +74,7 @@ const AppLayout = () => (WrappedComponent) => {
             )}
           </Grid>
           <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
-            <WrappedComponent {...props} />
+            <WrappedComponent {...props}  chatId={chatId}  user={user} />
           </Grid>
           <Grid
             item

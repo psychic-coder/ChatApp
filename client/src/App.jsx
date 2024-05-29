@@ -7,6 +7,7 @@ import { server } from "../src/constants/config.js";
 import { useDispatch, useSelector } from "react-redux";
 import { userExists, userNotExists } from "./redux/reducers/auth";
 import { Toaster } from "react-hot-toast";
+import { SocketProvider } from "./socket";
 
 //react-hot-toast is a lightweight and customizable toast notification library for React applications. It allows you to display temporary messages or alerts to users, providing feedback or notifications about various events in the application, such as form submissions, errors, success messages, and more.
 
@@ -31,21 +32,25 @@ function App() {
       .catch((err) => dispatch(userNotExists()));
   }, [dispatch]);
 
-    
-
-
-
   return loader ? (
     <LayoutLoader />
   ) : (
     <BrowserRouter>
       <Suspense fallback={<LayoutLoader />}>
         <Routes>
-          <Route element={<ProtectRoute user={user} />}>
+          <Route
+            element={
+              //as we want to access sockets inside the home,chat and group so we wrapped it around here
+              <SocketProvider>
+                <ProtectRoute user={user} />
+              </SocketProvider>
+            }
+          >
             <Route path="/" element={<Home />} />
             <Route path="/chat/:chatId" element={<Chat />} />
             <Route path="/groups" element={<Groups />} />
           </Route>
+
           <Route
             path="/login"
             element={
@@ -65,9 +70,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-       {/*This component will render all toasts. */}
+      {/*This component will render all toasts. */}
       <Toaster position="bottom-center" />
-     
     </BrowserRouter>
   );
 }

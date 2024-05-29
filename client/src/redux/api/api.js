@@ -52,6 +52,17 @@ Setting keepUnusedDataFor to 0 ensures the data is removed from the cache immedi
       }),
       invalidatesTags: ["Chat"],
     }),
+    chatDetails: builder.query({
+      query: ({ chatId, populate = false }) => {
+        let url = `chat/${chatId}`;
+        if (populate) url += "?populate=true";
+        return {
+          url,
+          credentials: "include",
+        };
+      },
+      providesTags: ["Chat"],
+    }),
   }),
 });
 
@@ -61,5 +72,6 @@ export const {
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
   useGetNotificationsQuery,
-  useAcceptFriendRequestMutation
+  useAcceptFriendRequestMutation,
+  useChatDetailsQuery,
 } = api;

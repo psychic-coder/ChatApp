@@ -44,4 +44,23 @@ const useAsyncMutation=(mutationHook)=>{
 
 }
 
+export const useSocketEvents=(socket,handlers)=>{
+  useEffect(()=>{
+    //Object.entries is a built-in method that returns an array of a given object's own enumerable string-keyed property [key, value] pairs. This method is useful for iterating over the properties of an object in a way that allows you to access both the key and value of each property.
+    Object.entries(handlers).forEach(([event,handler])=>{
+      socket.on(event,handler);
+    })
+    
+
+    /*socket.off method is used to remove an event listener that was previously added to a socket. This is useful for cleaning up event listeners to prevent memory leaks, avoid duplicate event handling, or stop listening to specific events when they are no longer needed.*/
+    return ()=>{
+      Object.entries(handlers).forEach(([event,handler])=>{
+        socket.off(event,handler);
+       //console.log(a);
+      })
+    }
+  },[socket,handlers])
+}
+
+
 export { useErrors,useAsyncMutation };

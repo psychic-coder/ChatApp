@@ -260,7 +260,7 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
 });
 
 export const getChatDetails = TryCatch(async (req, res, next) => {
-  if (req.params.populate === "true") {
+  if (req.query.populate === "true") {
     const chat = await Chat.findById(req.params.id)
       .populate("members", "name avatar")
       .lean();

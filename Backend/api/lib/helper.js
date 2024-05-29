@@ -5,7 +5,7 @@ export const getOtherMember = (members, userId) =>
 
 export const getSockets = (users = []) => {
   //we give the id of the users and get hold of the values of the sockets corresponding to that particular user from tge userSocketIDs and then we return the socket array
-  const sockets = users.map((user) => userSocketIDs.get(user._id.toString()));
+  const sockets = users.map((user) => userSocketIDs.get(user.toString()));
   return sockets;
 };
 

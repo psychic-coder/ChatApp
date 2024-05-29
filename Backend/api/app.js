@@ -16,7 +16,10 @@ import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
 import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
-import {v2 as cloudinary} from "cloudinary" 
+import { v2 as cloudinary } from "cloudinary";
+import { corsOption } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/auth.js";
+import { log } from "console";
 
 dotenv.config();
 
@@ -26,24 +29,21 @@ const userSocketIDs = new Map();
 connectDB("mongodb://localhost:27017/ChatterBox");
 
 cloudinary.config({
-  cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
-  api_key:process.env.CLOUDINARY_API_KEY,
-  api_secret:process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 var app = express();
 const server = createServer(app);
 app.use(logger("dev"));
 //we did cross origin as our users are gonna be from different platforms
-app.use(
-  cors({
-    origin: ["http://localhost:5173","http://localhost:4173",process.env.CLIENT_URL],
-    credentials: true,
-  })
-);
+app.use(cors(corsOption));
 //express.json is used to access the json data from the frontend
 
-const io = new Server(server, {});
+const io = new Server(server, {
+  cors: corsOption,
+});
 
 app.use(express.json());
 //express.urlencoded is used when we send form data from the frontend
@@ -63,14 +63,17 @@ app.get("/", (req, res) => {
 });
 
 //we creating a socket middleware overhere
-io.use((socket, next) => {});
+io.use((socket, next) => {
+  cookieParser()(
+    socket.request,
+    socket.request.res,
+    async (err) => await socketAuthenticator(err, socket, next)
+  );
+});
 
 io.on("connection", (socket) => {
-  const user = {
-    _id: "hgsv",
-    name: "vs",
-  };
-
+  const user = socket.user
+  //console.log(user);
   //we are mapping the value of user._id to socket.id,which means that the user with user._id is connected to that particular socket.id
   userSocketIDs.set(user._id.toString(), socket.id);
 
@@ -78,6 +81,8 @@ io.on("connection", (socket) => {
   //console.log("A user connected ",socket.id);
 
   socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
+
+    
     const messageForRealTime = {
       content: message,
       _id: uuid(),
@@ -94,6 +99,10 @@ io.on("connection", (socket) => {
       sender: user._id,
       chat: chatId,
     };
+
+      
+
+    //in the below code we're getting hold of the socket id's corresponding to the userids
     const membersSocket = getSockets(members);
 
     io.to(membersSocket).emit(NEW_MESSAGE, {
