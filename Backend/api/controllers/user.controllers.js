@@ -130,7 +130,7 @@ export const sendFriendRequest = TryCatch(async (req, res, next) => {
   });
 });
 
-export const acceptFriendRequest = TryCatch(async (req, res) => {
+export const acceptFriendRequest = TryCatch(async (req, res, next) => {
   const { requestId, accept } = req.body;
 
   const request = await Request.findById(requestId)
@@ -139,9 +139,9 @@ export const acceptFriendRequest = TryCatch(async (req, res) => {
 
   if (!request) return next(new ErrorHandler("Request not found", 404));
 
-  if (request.receiver.toString() !== req.user.toString())
+  if (request.receiver._id.toString() !== req.user.toString())
     return next(
-      new ErrorHandler("You are not authorized to accept this request !!", 401)
+      new ErrorHandler("You are not authorized to accept this request", 401)
     );
 
   if (!accept) {
@@ -149,7 +149,7 @@ export const acceptFriendRequest = TryCatch(async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Friend request rejected ",
+      message: "Friend Request Rejected",
     });
   }
 
@@ -167,7 +167,7 @@ export const acceptFriendRequest = TryCatch(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Friend request accepted ",
+    message: "Friend Request Accepted",
     senderId: request.sender._id,
   });
 });

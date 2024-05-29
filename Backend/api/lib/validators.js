@@ -3,6 +3,8 @@ import { ErrorHandler } from "../utils/utility.js";
 
 /*body: Explicitly validates fields within the request body.
 check: More flexible and can validate fields in the request body, query parameters, route parameters, headers, and cookies.*/
+
+
 export const registerValidator = () => [
   body("name", "Name should not be empty ").notEmpty(),
   body("username", "Username should not be empty ").notEmpty(),

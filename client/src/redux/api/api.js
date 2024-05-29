@@ -25,17 +25,41 @@ const api = createApi({
       }),
       providesTags: ["User"],
     }),
-    sendFriendRequest:builder.mutation({
-        query:(data)=>({
-        url:`/user/sendrequest`,
-        method:'PUT',
-        credentials:"include",
-        body:data
-        }),
-        invalidatesTags:["User"],
-    })
+    sendFriendRequest: builder.mutation({
+      query: (data) => ({
+        url: `/user/sendrequest`,
+        method: "PUT",
+        credentials: "include",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+    /*keepUnusedDataFor controls the duration that cached data remains in the store after it is no longer actively used by any component.
+Setting keepUnusedDataFor to 0 ensures the data is removed from the cache immediately after it becomes unused*/
+    getNotifications: builder.query({
+      query: () => ({
+        url: `user/notifications`,
+        credentials: "include",
+      }),
+      keepUnusedDataFor: 0,
+    }),
+    acceptFriendRequest: builder.mutation({
+      query: (data) => ({
+        url: "user/acceptrequest",
+        method: "PUT",
+        credentials: "include",
+        body: data,
+      }),
+      invalidatesTags: ["Chat"],
+    }),
   }),
 });
 
 export default api;
-export const { useMyChatsQuery,useLazySearchUserQuery,useSendFriendRequestMutation } = api;
+export const {
+  useMyChatsQuery,
+  useLazySearchUserQuery,
+  useSendFriendRequestMutation,
+  useGetNotificationsQuery,
+  useAcceptFriendRequestMutation
+} = api;
