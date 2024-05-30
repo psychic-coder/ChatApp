@@ -134,21 +134,24 @@ If any of the promises in the array reject, the returned promise will reject wit
 
 export const removeMembers = TryCatch(async (req, res, next) => {
   const { userId, chatId } = req.body;
-  const { chat, userThatWillBeRemoved } = await Promise.all([
-    chat.findById(chatId),
+
+  const [chat, userThatWillBeRemoved] = await Promise.all([
+    Chat.findById(chatId),
     User.findById(userId, "name"),
   ]);
 
-  if (!chat) return next(new ErrorHandler("CHAT NOT FOUND !!!", 404));
-  if (!chat.groupChat)
-    return next(new ErrorHandler("This is not a groupChat !!!", 400));
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
-  //only the creator of the group can remove members
+  if (!chat.groupChat)
+    return next(new ErrorHandler("This is not a group chat", 400));
+
   if (chat.creator.toString() !== req.user.toString())
-    return next(new ErrorHandler("You're not allowed to add members", 403));
+    return next(new ErrorHandler("You are not allowed to add members", 403));
 
   if (chat.members.length <= 3)
-    return next(new ErrorHandler("Group must have atleast 3 members ", 400));
+    return next(new ErrorHandler("Group must have at least 3 members", 400));
+
+  const allChatMembers = chat.members.map((i) => i.toString());
 
   chat.members = chat.members.filter(
     (member) => member.toString() !== userId.toString()
@@ -156,18 +159,16 @@ export const removeMembers = TryCatch(async (req, res, next) => {
 
   await chat.save();
 
-  emitEvent(
-    req,
-    ALERT,
-    chat.members,
-    `${userThatWillBeRemoved.name} has been removed from the group !!! `
-  );
+  emitEvent(req, ALERT, chat.members, {
+    message: `${userThatWillBeRemoved.name} has been removed from the group`,
+    chatId,
+  });
 
-  emitEvent(req, REFETCH_CHATS, chat.members);
+  emitEvent(req, REFETCH_CHATS, allChatMembers);
 
   return res.status(200).json({
     success: true,
-    message: "Member removed successfully !!!!",
+    message: "Member removed successfully",
   });
 });
 export const leaveGroup = TryCatch(async (req, res, next) => {

@@ -193,8 +193,9 @@ export const getMyNotifications = TryCatch(async (req, res, next) => {
   });
 });
 
-export const getMyFriends = TryCatch(async (req, res, next) => {
+export const getMyFriends = TryCatch(async (req, res) => {
   const chatId = req.query.chatId;
+
   const chats = await Chat.find({
     members: req.user,
     groupChat: false,
@@ -202,6 +203,7 @@ export const getMyFriends = TryCatch(async (req, res, next) => {
 
   const friends = chats.map(({ members }) => {
     const otherUser = getOtherMember(members, req.user);
+
     return {
       _id: otherUser._id,
       name: otherUser.name,
@@ -212,7 +214,8 @@ export const getMyFriends = TryCatch(async (req, res, next) => {
   if (chatId) {
     //in this below code we're using chatId , as when we want to add people to our grp , so we check whether they are already present in a group or not ,if they are not
     //then we can add them in the grp
-    const chat = await Chat.findById({ chatId });
+    const chat = await Chat.findById(chatId);
+
     const availableFriends = friends.filter(
       (friend) => !chat.members.includes(friend._id)
     );

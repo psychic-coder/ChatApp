@@ -17,8 +17,6 @@ import { attachmentsMulter } from "../middlewares/multer.js";
 import {
   addMemberValidator,
   chatIdValidator,
-  getMessagesValidator,
-  leaveGroupValidator,
   newGroupValidator,
   removeMemberValidator,
   renameValidator,
