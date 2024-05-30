@@ -17,7 +17,7 @@ import FileMenu from "../components/styles/dialogs/FileMenu";
 import { useInfiniteScrollTop } from "6pp";
 import MessageComponent from "../components/styles/shared/MessageComponent";
 import { getSocket } from "../socket";
-import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
+import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api";
 import { useErrors, useSocketEvents } from "../hooks/hook";
 import { useDispatch } from "react-redux";
@@ -104,10 +104,28 @@ It takes a function and a dependencies array, and returns a memoized version of 
     };
   }, [chatId]);
 
+  const alertListener=useCallback((content)=>{
+
+    
+
+    const messageForAlert = {
+       content,
+      sender: {
+        _id: "ftyfyfjyfyf",
+        name: "Admin",
+      },
+      chat: chatId,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev)=>[...prev,messageForAlert]);
+  },[chatId])
+
+
   const eventHandler = {
     [NEW_MESSAGE]: newMessagesListener,
     [START_TYPING]: startTypingListener,
     [STOP_TYPING]: stopTypingListener,
+    [ALERT]: alertListener,
   };
   useSocketEvents(socket, eventHandler);
   useErrors(errors);

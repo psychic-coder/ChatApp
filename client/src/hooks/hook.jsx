@@ -12,37 +12,42 @@ const useErrors = (errors = []) => {
   }, [errors]);
 };
 
-const useAsyncMutation=(mutationHook)=>{
 
-  const [isLoading,setIsLoading]=useState(false);
-  const [data,setData]=useState(null);
-  const [mutate]=mutationHook();
+ //we gave id at the end as this toast so it will replace the toast of the loading 
+ const useAsyncMutation = (mutatationHook) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(null);
 
+  const [mutate] = mutatationHook();
 
-  const executeMutation=async (toastMessage,...args)=>{
-      setIsLoading(true);
-      const toastId=toast.loading(toastMessage||" Updating data ...");
-      try {
-        const res=await  mutate(...args);
-        if(res.data){
-          //we gave id at the end as this toast will replace the toast of the loading 
-         toast.success(  res.data.message ||"Updated data successfully ",{id:toastId});
-         setData(res.data)
-        }
-        else{
-         toast.error(res?.error?.data?.message||"Something went wrong ",{id:toastId});
-        }
-        } catch (error) {
-         console.log(error);
-         toast.error("Something went wrong ",{id:toastId});
-        }finally{
-        setIsLoading(false);
+  const executeMutation = async (toastMessage, ...args) => {
+    setIsLoading(true);
+    const toastId = toast.loading(toastMessage || "Updating data...");
+
+    try {
+      const res = await mutate(...args);
+
+      if (res.data) {
+        toast.success(res.data.message || "Updated data successfully", {
+          id: toastId,
+        });
+        setData(res.data);
+      } else {
+        toast.error(res?.error?.data?.message || "Something went wrong", {
+          id: toastId,
+        });
       }
-  }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong", { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  return [executeMutation,isLoading,data];
-
-}
+  return [executeMutation, isLoading, data];
+};
+  
 
 export const useSocketEvents=(socket,handlers)=>{
   useEffect(()=>{
