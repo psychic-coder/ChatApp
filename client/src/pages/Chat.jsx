@@ -14,45 +14,52 @@ import {
 } from "@mui/icons-material";
 import { InputBox } from "../styles/StyledComponent";
 import FileMenu from "../components/styles/dialogs/FileMenu";
-import {useInfiniteScrollTop} from "6pp"
+import { useInfiniteScrollTop } from "6pp";
 import MessageComponent from "../components/styles/shared/MessageComponent";
 import { getSocket } from "../socket";
-import { NEW_MESSAGE } from "../constants/events";
+import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
 import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api";
 import { useErrors, useSocketEvents } from "../hooks/hook";
 import { useDispatch } from "react-redux";
 import { setIsFileMenu } from "../redux/reducers/misc";
+import { removeNewMessagesAlert } from "../redux/reducers/chat";
+import { TypingLoader } from "../components/styles/layout/Loaders";
 
 function Chat({ chatId, user }) {
+  const bottomRef=useRef(null);
   const containerRef = useRef(null);
   const socket = getSocket();
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
   //skip makes sure if chatId is present then only we call it , otherwise we refuse to call it
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   //console.log(chatDetails);
   const [messages, setMessages] = useState([]);
-  console.log(messages);
-
   const members = chatDetails?.data?.chat?.members;
 
   const [message, setMessage] = useState("");
   const [page, setPage] = useState(null);
   const [fileMenuAnchor, setFileMenuAnchor] = useState(1);
-
+  const [IamTyping, setIamTyping] = useState(false);
+  const [userTyping, setUserTyping] = useState(false);
+  const typingTimeout = useRef(null);
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
 
   //in the infinite scroll the setPage will set the value of page  and it will increase automatically when we scroll
   //the containerRef is referring to the stack ref ,we want to refer to
- //setOldMessages is not used , here  but it can be used to clear all the old messages
-  const {data:oldMessages,setData:setOldMessages}= useInfiniteScrollTop(containerRef,oldMessagesChunk.data?.totalPages,page,setPage,oldMessagesChunk.data?.messages);
+  //setOldMessages is not used , here  but it can be used to clear all the old messages
+  const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(
+    containerRef,
+    oldMessagesChunk.data?.totalPages,
+    page,
+    setPage,
+    oldMessagesChunk.data?.messages
+  );
 
   const errors = [
     { isError: chatDetails.isError, error: chatDetails.error },
     { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error },
   ];
-
-
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -67,22 +74,68 @@ function Chat({ chatId, user }) {
   /*useCallback hook is used to memoize callback functions. This means that it returns a memoized version of the callback that only changes if one of the dependencies has changed. It is useful for optimizing performance, especially in components that rely on reference equality to avoid unnecessary re-renders.*/
   /*useCallback memoizes functions to prevent unnecessary re-renders, especially when passing callbacks to child components.
 It takes a function and a dependencies array, and returns a memoized version of the function.*/
-  const newMessagesHandler = useCallback((data) => {
-    setMessages((prev) => [...prev, data.message]);
-  }, []);
+  const newMessagesListener = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      setMessages((prev) => [...prev, data.message]);
+    },
+    [chatId]
+  );
+  const startTypingListener = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      setUserTyping(true);
+    },
+    [chatId]
+  );
+  const stopTypingListener = useCallback(
+    (data) => {
+      if (data.chatId !== chatId) return;
+      setUserTyping(false);
+    },
+    [chatId]
+  );
 
-  const eventHandler = { [NEW_MESSAGE]: newMessagesHandler };
+  useEffect(() => {
+    dispatch(removeNewMessagesAlert(chatId));
+
+    return () => {
+      setMessages([]), setMessage(""), setOldMessages([]), setPage(1);
+    };
+  }, [chatId]);
+
+  const eventHandler = {
+    [NEW_MESSAGE]: newMessagesListener,
+    [START_TYPING]: startTypingListener,
+    [STOP_TYPING]: stopTypingListener,
+  };
   useSocketEvents(socket, eventHandler);
   useErrors(errors);
-
-  
-
-  const allMessages=[...oldMessages,...messages];
-
+  const allMessages = [...oldMessages, ...messages];
   const handleFileOpen = (e) => {
     dispatch(setIsFileMenu(true));
     setFileMenuAnchor(e.currentTarget);
   };
+
+  const messageOnChange = (e) => {
+    setMessage(e.target.value);
+    if (!IamTyping) {
+      socket.emit(START_TYPING, { members, chatId });
+      setIamTyping(true);
+    }
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit(STOP_TYPING, { members, chatId });
+      setIamTyping(false);
+    }, [2000]);
+  };
+
+  useEffect(()=>{
+    //on reloading we are automatially at the bottom of the page
+    if(bottomRef.current) bottomRef.current.scrollIntoView({behaviour:"smooth"});
+  },[messages])
+
 
   return chatDetails.isLoading ? (
     <Skeleton />
@@ -100,10 +153,15 @@ It takes a function and a dependencies array, and returns a memoized version of 
           overflowY: "auto",
         }}
       >
-      
         {allMessages.map((i) => (
           <MessageComponent key={i._id} message={i} user={user} />
         ))}
+
+        {userTyping && <TypingLoader/>}
+
+        {/*on reloading we are automatially at the bottom of the page*/}
+        <div ref={bottomRef}/>
+
       </Stack>
       <form style={{ height: "10%" }} onSubmit={submitHandler}>
         <Stack
@@ -127,18 +185,18 @@ It takes a function and a dependencies array, and returns a memoized version of 
           <InputBox
             placeholder="Type you messages here ....."
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={messageOnChange}
           />
           <IconButton
             type="submit"
             sx={{
               rotate: "-30deg",
-              backgroundColor: orange,
+              bgcolor: orange,
               color: "white",
               marginLeft: "1rem",
               padding: "0.5rem",
               "&:hover": {
-                backgroundColor: "error.dark",
+                bgcolor: "error.dark",
               },
             }}
           >
@@ -146,6 +204,7 @@ It takes a function and a dependencies array, and returns a memoized version of 
           </IconButton>
         </Stack>
       </form>
+
       <FileMenu anchorE1={fileMenuAnchor} chatId={chatId} />
     </Fragment>
   );

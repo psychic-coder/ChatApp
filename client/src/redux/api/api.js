@@ -68,7 +68,7 @@ Setting keepUnusedDataFor to 0 ensures the data is removed from the cache immedi
         url:`chat/message/${chatId}?page=${page}`,
         credentials: "include",
       }),
-      providesTags: ["Message"],
+      keepUnusedDataFor:0,
     }),
     sendAttachments: builder.mutation({
       query: (data) => ({
@@ -78,7 +78,6 @@ Setting keepUnusedDataFor to 0 ensures the data is removed from the cache immedi
         body: data,
       }),
     }),
-
     myGroups: builder.query({
       query: () => ({
         url: "chat/my/groups",

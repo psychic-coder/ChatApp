@@ -1,6 +1,7 @@
 import {
   AppBar,
   Backdrop,
+  Badge,
   Box,
   IconButton,
   Toolbar,
@@ -24,6 +25,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { userNotExists } from "../../../redux/reducers/auth";
 import { setIsMobile, setIsNotification, setIsSearch } from "../../../redux/reducers/misc";
+import { resetNotificationCount } from "../../../redux/reducers/chat";
 
 
 const SearchDialog = lazy(() => import("../specific/Search"));
@@ -33,6 +35,7 @@ const NewGroupDialog = lazy(() => import("../specific/NewGroup"));
 function Header() {
 
   const { isSearch ,isNotification} = useSelector((state) => state.misc);
+  const { notificationCount} = useSelector((state) => state.chat);
   const [isNewGroup, setIsNewGroup] = useState(false);
   const dispatch = useDispatch();
 
@@ -50,7 +53,11 @@ function Header() {
   const openNewGroup = () => {
     setIsNewGroup((prev) => !prev);
   };
-  const openNotification = () => dispatch(setIsNotification(true));
+  const openNotification = () => {
+    dispatch(setIsNotification(true));
+    dispatch(resetNotificationCount());
+
+  };
   const logoutHandler = async () => {
     try {
       const { data } = await axios.get(`${server}/api/v1/user/logout`, {
@@ -111,6 +118,8 @@ function Header() {
                 title={"NotificationsIcon "}
                 icon={<NotificationsIcon />}
                 onClick={openNotification}
+                value={notificationCount}
+
               />
               <IconBtn
                 title={"Logout "}
@@ -149,11 +158,17 @@ Suspense can also be used to handle asynchronous data fetching, displaying a loa
 {
   /*tool tip show the name new group when we hover over it*/
 }
-const IconBtn = ({ title, icon, onClick }) => {
+const IconBtn = ({ title, icon, onClick, value }) => {
   return (
     <Tooltip title={title}>
-      <IconButton color="inhert" size="large" onClick={onClick}>
-        {icon}
+      <IconButton color="inherit" size="large" onClick={onClick}>
+        {value ? (
+          <Badge badgeContent={value} color="error">
+            {icon}
+          </Badge>
+        ) : (
+          icon
+        )}
       </IconButton>
     </Tooltip>
   );

@@ -1,8 +1,12 @@
 import { TryCatch } from "../middlewares/error.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { Chat } from "../models/chat.js";
-import { deleteFilesFromCloudinary, emitEvent } from "../utils/features.js";
-import { ALERT, NEW_ATTACHMENT, REFETCH_CHATS } from "../constants/events.js";
+import {
+  deleteFilesFromCloudinary,
+  emitEvent,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
+import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 import { User } from "../models/user.js";
 import { Message } from "../models/message.js";
@@ -207,30 +211,34 @@ export const leaveGroup = TryCatch(async (req, res, next) => {
 export const sendAttachments = TryCatch(async (req, res, next) => {
   const { chatId } = req.body;
 
+  //the req.files we get using the middleware multer.js
+  const files = req.files || [];
 
-    //the req.files we get using the middleware multer.js
-    const files = req.files || [];
+  console.log(files)
 
-    if(files.length<1) return next(new ErrorHandler("Please upload attachments",400));
-    if(files.length>5) return next(new ErrorHandler("Only 5 attachments can be uploaded",400));
+  if (files.length < 1)
+    return next(new ErrorHandler("Please Upload Attachments", 400));
+
+  if (files.length > 5)
+    return next(new ErrorHandler("Files Can't be more than 5", 400));
 
   const [chat, me] = await Promise.all([
     Chat.findById(chatId),
     User.findById(req.user, "name"),
   ]);
-  if (!chat) return next(new ErrorHandler("Chat not found !!!!", 404));
 
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
   if (files.length < 1)
-    return next(new ErrorHandler("Please provide attachments ", 400));
+    return next(new ErrorHandler("Please provide attachments", 400));
 
-  const attachements = [];
-
+  //   Upload files here
+  const attachments = await uploadFilesToCloudinary(files);
   //uploading of files takes place overhere
 
   const messageForDB = {
     content: "",
-    attachements,
+    attachments,
     sender: me._id,
     chat: chatId,
   };
@@ -238,26 +246,26 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
   const messageForRealTime = {
     ...messageForDB,
     sender: {
-      id: me._id,
+      _id: me._id,
       name: me.name,
     },
   };
 
   const message = await Message.create(messageForDB);
 
-  emitEvent(req, NEW_ATTACHMENT, chat.members, {
+  emitEvent(req, NEW_MESSAGE, chat.members, {
     message: messageForRealTime,
     chatId,
   });
-  emitEvent(req, REFETCH_CHATS, chat.members, {
-    chatId,
-  });
+
+  emitEvent(req, NEW_MESSAGE_ALERT, chat.members, { chatId });
 
   return res.status(200).json({
     success: true,
     message,
   });
 });
+
 
 export const getChatDetails = TryCatch(async (req, res, next) => {
   if (req.query.populate === "true") {

@@ -12,14 +12,13 @@ import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
 import { createMessagesInAChat } from "./seeders/chat.js";
 import { createServer } from "http";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from "./constants/events.js";
 import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from "cloudinary";
 import { corsOption } from "./constants/config.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
-import { log } from "console";
 
 dotenv.config();
 
@@ -44,6 +43,8 @@ app.use(cors(corsOption));
 const io = new Server(server, {
   cors: corsOption,
 });
+//we're saving the instance of io
+app.set("io",io);
 
 app.use(express.json());
 //express.urlencoded is used when we send form data from the frontend
@@ -118,6 +119,16 @@ io.on("connection", (socket) => {
       console.log(error);
     }
   });
+
+socket.on(START_TYPING,({members,chatId})=>{
+    const membersSockets=getSockets(members)
+    socket.to(membersSockets).emit(START_TYPING,{chatId})
+})
+socket.on(STOP_TYPING,({members,chatId})=>{
+    const membersSockets=getSockets(members)
+    socket.to(membersSockets).emit(STOP_TYPING,{chatId})
+})
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected ");

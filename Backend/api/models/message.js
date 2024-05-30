@@ -4,7 +4,7 @@ const schema = new Schema(
   {
     content: String,
     
-    attachements: [
+    attachments: [
       {
         public_id: {
           type: String,

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
-import {v2 as cloudinary} from "cloudinary"
-import { getBase64 } from "../lib/helper.js";
+import { v2 as cloudinary } from "cloudinary";
+import { getBase64, getSockets } from "../lib/helper.js";
 
 //The sameSite attribute in cookies is used to control whether a cookie can be sent along with cross-site requests, providing a measure of protection against cross-site request forgery (CSRF) attacks. The sameSite attribute can have three values: Strict, Lax, and None.
 const cookieOptions = {
@@ -36,11 +36,12 @@ const sendToken = (res, user, code, message) => {
 };
 
 export const emitEvent = (req, event, users, data) => {
-  console.log("Emitting event !", event);
+  const io=req.app.get("io");
+  const usersSocket=getSockets(users)
+  io.to(usersSocket).emit(event,data);
 };
 
 export const deleteFilesFromCloudinary = async (public_ids) => {};
-
 
 export const uploadFilesToCloudinary = async (files = []) => {
   const uploadPromises = files.map((file) => {
@@ -48,7 +49,7 @@ export const uploadFilesToCloudinary = async (files = []) => {
       cloudinary.uploader.upload(
         getBase64(file),
         {
-/*public_id: uuid()
+          /*public_id: uuid()
 Purpose: Assigns a unique identifier to the uploaded file.
 Explanation: The public_id option sets the public identifier for the uploaded resource. By default, Cloudinary generates a unique identifier for each upload, but you can specify your own identifier using this option*/
           resource_type: "auto",
@@ -62,14 +63,14 @@ Explanation: The public_id option sets the public identifier for the uploaded re
     });
   });
   try {
-      const results=await Promise.all(uploadPromises)
-      const formattedResults= results.map((result)=>({
-        public_id:result.public_id,
-        url:result.secure_url
-      }));
-      return formattedResults;
+    const results = await Promise.all(uploadPromises);
+    const formattedResults = results.map((result) => ({
+      public_id: result.public_id,
+      url: result.secure_url,
+    }));
+    return formattedResults;
   } catch (error) {
-    throw new Error("Error uploading files to cloudinary ",error);
+    throw new Error("Error uploading files to cloudinary ", error);
   }
 };
 
