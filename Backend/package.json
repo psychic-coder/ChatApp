@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "NODE_ENV=PRODUCTION node ./bin/www",
-    "dev": "NODE_ENV=DEVELOPMENT npx nodemon ./bin/www"
+    "start": " node ./bin/www",
+    "dev": "npx nodemon ./bin/www"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
