@@ -19,6 +19,8 @@ import MessageComponent from "../components/styles/shared/MessageComponent";
 import { getSocket } from "../socket";
 import {
   ALERT,
+  CHAT_JOINED,
+  CHAT_LEAVED,
   NEW_MESSAGE,
   START_TYPING,
   STOP_TYPING,
@@ -108,10 +110,15 @@ It takes a function and a dependencies array, and returns a memoized version of 
   );
 
   useEffect(() => {
+    socket.emit(CHAT_JOINED,{userId:user._id,members})
     dispatch(removeNewMessagesAlert(chatId));
 
     return () => {
-      setMessages([]), setMessage(""), setOldMessages([]), setPage(1);
+      setMessages([]);
+      setMessage("");
+      setOldMessages([]);
+      setPage(1);
+      socket.emit(CHAT_LEAVED, { userId: user._id, members });
     };
   }, [chatId]);
 

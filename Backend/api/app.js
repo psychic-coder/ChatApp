@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
 import { createMessagesInAChat } from "./seeders/chat.js";
 import { createServer } from "http";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from "./constants/events.js";
+import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, NEW_MESSAGE_ALERT, ONLINE_USERS, START_TYPING, STOP_TYPING } from "./constants/events.js";
 import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
@@ -23,6 +23,7 @@ import { socketAuthenticator } from "./middlewares/auth.js";
 dotenv.config();
 
 const userSocketIDs = new Map();
+const onlineUsers = new Set();
 
 //mongoURI=process.env.MONGO_URI;
 connectDB("mongodb://localhost:27017/ChatterBox");
@@ -78,7 +79,7 @@ io.on("connection", (socket) => {
   //we are mapping the value of user._id to socket.id,which means that the user with user._id is connected to that particular socket.id
   userSocketIDs.set(user._id.toString(), socket.id);
 
-  console.log(userSocketIDs);
+  //console.log(userSocketIDs);
   //console.log("A user connected ",socket.id);
 
   socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
@@ -129,11 +130,25 @@ socket.on(STOP_TYPING,({members,chatId})=>{
     socket.to(membersSockets).emit(STOP_TYPING,{chatId})
 })
 
+socket.on(CHAT_JOINED, ({ userId, members }) => {
+  onlineUsers.add(userId.toString());
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected ");
-    userSocketIDs.delete(user._id.toString());
-  });
+  const membersSocket = getSockets(members);
+  io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
+});
+
+socket.on(CHAT_LEAVED, ({ userId, members }) => {
+  onlineUsers.delete(userId.toString());
+
+  const membersSocket = getSockets(members);
+  io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
+});
+
+socket.on("disconnect", () => {
+  userSocketIDs.delete(user._id.toString());
+  onlineUsers.delete(user._id.toString());
+  socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+});
 });
 
 app.use(errorMiddleware);
