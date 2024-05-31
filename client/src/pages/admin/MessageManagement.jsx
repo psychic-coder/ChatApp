@@ -6,6 +6,7 @@ import { dashboardData } from "../../constants/SampleData";
 import { FileFormat as fileFormat, transformImage } from "../../lib/features";
 import moment from "moment";
 import RenderAttachment from "../../components/styles/shared/RenderAttachment";
+import {motion} from "framer-motion"
 
 const columns = [
   {

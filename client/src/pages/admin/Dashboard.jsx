@@ -1,6 +1,13 @@
 import React from "react";
 import AdminLayout from "../../components/styles/layout/AdminLayout";
-import { Box, Container, Paper, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Paper,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   Group as GroupIcon,
@@ -10,9 +17,22 @@ import {
 } from "@mui/icons-material";
 import moment from "moment";
 import { SearchField, CurveButton } from "../../styles/StyledComponent";
-import { DoughnutChart, LineChart } from "../../components/styles/specific/Charts";
+import {
+  DoughnutChart,
+  LineChart,
+} from "../../components/styles/specific/Charts";
+import { useFetchData } from "6pp";
+import { server } from "../../constants/config";
+import { LayoutLoader } from "../../components/styles/layout/Loaders";
+import { useErrors } from "../../hooks/hook";
 
 const Dashboard = () => {
+  const { loading, data, error, refetch } = useFetchData(
+    `${server}/api/v1/admin/stats`,
+    "dashboard-stats"
+  );
+  const { stats } = data || {};
+  useErrors([{ isError: error, error: error }]);
   const AppBar = (
     <Paper
       elevation={3}
@@ -58,27 +78,38 @@ const Dashboard = () => {
         alignItems={"center"}
         margin={"2rem 0"}
       >
-        <Widget title={"Users"} value={34} Icon={<PersonIcon />} />
-        <Widget title={"Chats"} value={3} Icon={<GroupIcon />} />
-        <Widget title={"Messages"} value={453} Icon={<MessageIcon />} />
+        <Widget title={"Users"} value={stats?.usersCount} Icon={<PersonIcon />} />
+        <Widget title={"Chats"} value={stats?.totalChatsCount} Icon={<GroupIcon />} />
+        <Widget
+        title={"Messages"}
+        value={stats?.messagesCount}
+        Icon={<MessageIcon />}
+      />
       </Stack>
     </>
   );
-  return (
+  console.log(data);
+
+  return loading ? (
+    <LayoutLoader />
+  ) : (
     <AdminLayout>
       <Container component={"main"}>
         {AppBar}
-        <Stack direction={{
-          xs:"column",
-          lg:"row"
-        }}  flexWrap={"wrap"} justifyContent={"center"}
-        alignItems={{
-          xs:"center",
-          lg:"strech"
-        }}
-        sx={{
-          gap:"2rem"
-        }}
+        <Stack
+          direction={{
+            xs: "column",
+            lg: "row",
+          }}
+          flexWrap={"wrap"}
+          justifyContent={"center"}
+          alignItems={{
+            xs: "center",
+            lg: "strech",
+          }}
+          sx={{
+            gap: "2rem",
+          }}
         >
           <Paper
             elevation={"3"}
@@ -92,7 +123,7 @@ const Dashboard = () => {
             <Typography margin={"2rem 0"} variant="h4">
               Last Messages
             </Typography>
-            <LineChart value={[65, 59, 80, 81, 56, 55, 40]}/>
+            <LineChart value={stats?.messagesCount || []} />
           </Paper>
           <Paper
             elevation={3}
@@ -109,10 +140,15 @@ const Dashboard = () => {
               position: "relative",
               width: "100%",
               maxWidth: "25rem",
-              
             }}
           >
-            <DoughnutChart labels={["SingleChat" ,"GroupChats"]} value={[23,66]}/>
+           <DoughnutChart
+                labels={["Single Chats", "Group Chats"]}
+                value={[
+                  stats?.totalChatsCount - stats?.groupsCount || 0,
+                  stats?.groupsCount || 0,
+                ]}
+              />
             <Stack
               position={"absolute"}
               direction={"row"}
@@ -135,28 +171,31 @@ const Dashboard = () => {
 };
 
 const Widget = ({ title, value, Icon }) => (
-  <Paper 
-  elevation={3}
-  sx={{
-    padding:"2rem",
-    margin:"2rem 0",
-    borderRadius:"1.5rem",
-    width:"20rem"
-  }}>
+  <Paper
+    elevation={3}
+    sx={{
+      padding: "2rem",
+      margin: "2rem 0",
+      borderRadius: "1.5rem",
+      width: "20rem",
+    }}
+  >
     <Stack alignItems={"center"} spacing={"1rem"}>
-      <Typography 
-      sx={{
-        color:"rgba(0,0,0,0.7)",
-        borderRadius:"50%",
-        border:"5px solid rgba(0,0,0,0.9)",
-        width:"5rem",
-        height:"5rem",
-        display:"flex",
-        justifyContent:"center",
-        alignItems:"center"
-      }}
-      >{value}</Typography>
-      <Stack direction={"row"} spacing={"1rem"} alignItems={"center"} >
+      <Typography
+        sx={{
+          color: "rgba(0,0,0,0.7)",
+          borderRadius: "50%",
+          border: "5px solid rgba(0,0,0,0.9)",
+          width: "5rem",
+          height: "5rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {value}
+      </Typography>
+      <Stack direction={"row"} spacing={"1rem"} alignItems={"center"}>
         {Icon}
         <Typography>{title}</Typography>
       </Stack>

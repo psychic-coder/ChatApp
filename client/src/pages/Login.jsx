@@ -23,6 +23,7 @@ import { server } from "../constants/config";
 function Login() {
   const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const toggleLogin = () => setIsLogin((prev) => !prev);
 
   //the useInputValidation is similar to the useState hook
@@ -33,6 +34,9 @@ function Login() {
   const avatar = useFileHandler("single");
   const handleSignup = async (e) => {
     e.preventDefault();
+    const toastId= toast.loading("Signing Up ...");
+    setIsLoading(true);
+   
     /*form data is a new objct which we created*/
     const formData = new FormData();
     /*formData.append(key, value) is a method that appends a new value onto an existing key inside a FormData object, or adds the key if it does not already exist.
@@ -59,15 +63,19 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
         config
       );
       dispatch(userExists(true));
-      toast.success(data.message);
+      toast.success(data.message,{id:toastId});
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong",{id:toastId});
+    }finally{
+      setIsLoading( false);
     }
   };
 
   //The Content-Type header in HTTP requests and responses specifies the media type of the resource being sent or received. This header informs the server or client about the format of the data, so it can be processed correctly.
   const handleLogin = async (e) => {
     e.preventDefault();
+  const toastId= toast.loading("Logging in ...");
+    setIsLoading(true);
     const config = {
       withCredentials: true,
       headers: {
@@ -84,10 +92,12 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
         },
         config
       );
-      dispatch(userExists(true));
-      toast.success(data.message);
+      dispatch(userExists(data.user));
+      toast.success(data.message,{id:toastId});
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong",{id:toastId});
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -154,6 +164,7 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Login
                 </Button>
@@ -165,6 +176,7 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
                   color="secondary"
                   onClick={toggleLogin}
                   fullWidth
+                  disabled={isLoading}
                 >
                   Sign Up Instead
                 </Button>
@@ -277,6 +289,7 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Sign Up
                 </Button>
@@ -288,6 +301,7 @@ Each append call adds a key/value pair to the FormData object. Here's what each 
                   color="secondary"
                   onClick={toggleLogin}
                   fullWidth
+                  disabled={isLoading}
                 >
                   Login Instead
                 </Button>

@@ -28,6 +28,7 @@ import UserItem from "../components/styles/shared/UserItem";
 import {
   useAddGroupMembersMutation,
   useChatDetailsQuery,
+  useDeleteChatMutation,
   useMyGroupsQuery,
   useRemoveGroupMemberMutation,
   useRenameGroupMutation,
@@ -60,6 +61,7 @@ function Groups() {
   const [removeMember, isLoadingRemoveMember] = useAsyncMutation(
     useRemoveGroupMemberMutation
   );
+  const [deleteGroup,isLoadingDeleteGroup]=useAsyncMutation(useDeleteChatMutation)
  
   const [members, setMembers] = useState([]);
 
@@ -185,16 +187,15 @@ function Groups() {
   );
 
   const deleteHandler = () => {
-    console.log("Delete Handler");
-    setConfirmDeleteDialog(false);
+    deleteGroup("Deleting Group ....",chatId);
+    closeConfirmDeleteHandler();
+    navigate("/");
   };
   const openConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(true);
-    console.log("Delete Group");
   };
   const closeConfirmDeleteHandler = () => {
-    setConfirmDeleteDialog(false);
-    console.log("Delete Group");
+    setConfirmDeleteDialog(false);;
   };
   const openAddMemberHandler = () => {
     dispatch(setIsAddMember(true))

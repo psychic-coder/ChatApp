@@ -17,16 +17,27 @@ import FileMenu from "../components/styles/dialogs/FileMenu";
 import { useInfiniteScrollTop } from "6pp";
 import MessageComponent from "../components/styles/shared/MessageComponent";
 import { getSocket } from "../socket";
-import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
-import { useChatDetailsQuery, useGetMessagesQuery } from "../redux/api/api";
-import { useErrors, useSocketEvents } from "../hooks/hook";
+import {
+  ALERT,
+  NEW_MESSAGE,
+  START_TYPING,
+  STOP_TYPING,
+} from "../constants/events";
+import {
+  useChatDetailsQuery,
+  useDeleteChatMutation,
+  useGetMessagesQuery,
+} from "../redux/api/api";
+import { useAsyncMutation, useErrors, useSocketEvents } from "../hooks/hook";
 import { useDispatch } from "react-redux";
 import { setIsFileMenu } from "../redux/reducers/misc";
 import { removeNewMessagesAlert } from "../redux/reducers/chat";
 import { TypingLoader } from "../components/styles/layout/Loaders";
+import { useNavigate } from "react-router-dom";
 
 function Chat({ chatId, user }) {
-  const bottomRef=useRef(null);
+  const navigate = useNavigate();
+  const bottomRef = useRef(null);
   const containerRef = useRef(null);
   const socket = getSocket();
   const dispatch = useDispatch();
@@ -104,22 +115,22 @@ It takes a function and a dependencies array, and returns a memoized version of 
     };
   }, [chatId]);
 
-  const alertListener=useCallback((content)=>{
-
-    
-
-    const messageForAlert = {
-       content,
-      sender: {
-        _id: "ftyfyfjyfyf",
-        name: "Admin",
-      },
-      chat: chatId,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages((prev)=>[...prev,messageForAlert]);
-  },[chatId])
-
+  const alertListener = useCallback(
+    ( data) => {
+      if(data.chatId!==chatId) return;
+      const messageForAlert = {
+        content:data.message,
+        sender: {
+          _id: "ftyfyfjyfyf",
+          name: "Admin",
+        },
+        chat: chatId,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, messageForAlert]);
+    },
+    [chatId]
+  );
 
   const eventHandler = {
     [NEW_MESSAGE]: newMessagesListener,
@@ -149,11 +160,15 @@ It takes a function and a dependencies array, and returns a memoized version of 
     }, [2000]);
   };
 
-  useEffect(()=>{
-    //on reloading we are automatially at the bottom of the page
-    if(bottomRef.current) bottomRef.current.scrollIntoView({behaviour:"smooth"});
-  },[messages])
+  //on reloading we are automatially at the bottom of the page
+  useEffect(() => {
+    if (bottomRef.current)
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  useEffect(() => {
+    if (chatDetails.isError) return navigate("/");
+  }, [chatDetails.isError]);
 
   return chatDetails.isLoading ? (
     <Skeleton />
@@ -175,11 +190,10 @@ It takes a function and a dependencies array, and returns a memoized version of 
           <MessageComponent key={i._id} message={i} user={user} />
         ))}
 
-        {userTyping && <TypingLoader/>}
+        {userTyping && <TypingLoader />}
 
         {/*on reloading we are automatially at the bottom of the page*/}
-        <div ref={bottomRef}/>
-
+        <div ref={bottomRef} />
       </Stack>
       <form style={{ height: "10%" }} onSubmit={submitHandler}>
         <Stack

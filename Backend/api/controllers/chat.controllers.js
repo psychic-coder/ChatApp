@@ -6,7 +6,13 @@ import {
   emitEvent,
   uploadFilesToCloudinary,
 } from "../utils/features.js";
-import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT, REFETCH_CHATS } from "../constants/events.js";
+import {
+  ALERT,
+  NEW_ATTACHMENT,
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  REFETCH_CHATS,
+} from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 import { User } from "../models/user.js";
 import { Message } from "../models/message.js";
@@ -172,26 +178,25 @@ export const removeMembers = TryCatch(async (req, res, next) => {
   });
 });
 export const leaveGroup = TryCatch(async (req, res, next) => {
-  const { chatId } = req.params.id;
+  const chatId = req.params.id;
 
   const chat = await Chat.findById(chatId);
-  if (!chat) return next(new ErrorHandler("CHAT NOT FOUND !!!", 404));
+
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
   if (!chat.groupChat)
-    return next(new ErrorHandler("This is not a group chat !!!!", 400));
+    return next(new ErrorHandler("This is not a group chat", 400));
 
-  const remainingMembers = chat.membersfilter(
+  const remainingMembers = chat.members.filter(
     (member) => member.toString() !== req.user.toString()
   );
 
-  if (remainingMembers.length < 3) {
-    return next(new ErrorHandler("Group must have atleast 3 members", 400));
-  }
+  if (remainingMembers.length < 3)
+    return next(new ErrorHandler("Group must have at least 3 members", 400));
 
   if (chat.creator.toString() === req.user.toString()) {
     const randomElement = Math.floor(Math.random() * remainingMembers.length);
     const newCreator = remainingMembers[randomElement];
-
     chat.creator = newCreator;
   }
 
@@ -202,10 +207,14 @@ export const leaveGroup = TryCatch(async (req, res, next) => {
     chat.save(),
   ]);
 
-  emitEvent(req, ALERT, chat.members, `${user.name} has left the group !!! `);
+  emitEvent(req, ALERT, chat.members, {
+    chatId,
+    message: `User ${user.name} has left the group`,
+  });
+
   return res.status(200).json({
     success: true,
-    message: "Member left successfully !!!!",
+    message: "Leave Group Successfully",
   });
 });
 
@@ -215,7 +224,7 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
   //the req.files we get using the middleware multer.js
   const files = req.files || [];
 
-  console.log(files)
+  console.log(files);
 
   if (files.length < 1)
     return next(new ErrorHandler("Please Upload Attachments", 400));
@@ -266,7 +275,6 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
     message,
   });
 });
-
 
 export const getChatDetails = TryCatch(async (req, res, next) => {
   if (req.query.populate === "true") {
@@ -332,16 +340,16 @@ export const deleteChat = TryCatch(async (req, res, next) => {
 
   const chat = await Chat.findById(chatId);
 
-  if (!chat) return next(new ErrorHandler("Chat not found ", 404));
+  if (!chat) return next(new ErrorHandler("Chat not found", 404));
 
   const members = chat.members;
 
-  if (chat.groupChat && chat.creator.toString() !== req.user.toString()) {
+  if (chat.groupChat && chat.creator.toString() !== req.user.toString())
     return next(
       new ErrorHandler("You are not allowed to delete the group", 403)
     );
-  }
-  if (!chat.groupChat && !chat.member.includes(req.user.toString())) {
+
+  if (!chat.groupChat && !chat.members.includes(req.user.toString())) {
     return next(
       new ErrorHandler("You are not allowed to delete the chat", 403)
     );
@@ -352,21 +360,21 @@ $ne: []: This condition ensures that the attachments field is not equal to an em
   //in messageWithAttachments in the below we're getting hold of the messages which contain the attachments field
   const messagesWithAttachments = await Message.find({
     chat: chatId,
-    attachements: { $exists: true, $ne: [] },
+    attachments: { $exists: true, $ne: [] },
   });
+
   const public_ids = [];
 
-  messagesWithAttachments.forEach(({ attachements }) =>
-    attachements.forEach(({ public_ids }) => public_ids.push(public_ids))
+  messagesWithAttachments.forEach(({ attachments }) =>
+    attachments.forEach(({ public_id }) => public_ids.push(public_id))
   );
 
   await Promise.all([
     deleteFilesFromCloudinary(public_ids),
-    /*Deletes the chat document itself from the database.
-Deletes all messages associated with the chat from the database.*/
     chat.deleteOne(),
     Message.deleteMany({ chat: chatId }),
   ]);
+
   emitEvent(req, REFETCH_CHATS, members);
 
   return res.status(200).json({
@@ -380,6 +388,15 @@ export const getMessages = TryCatch(async (req, res, next) => {
   const resultPerPage = 20;
   const { page = 1 } = req.query;
   const skip = (page - 1) * resultPerPage;
+
+  const chat = await Chat.findById(chatId);
+
+  if (!chat) return next(new ErrorHandler("Chat not found ", 404));
+
+  if (!chat.members.includes(req.user.toString()))
+    return next(
+      new ErrorHandler("You are not allowed to access this chat ,403")
+    );
 
   const [messages, totalMessagesCount] = await Promise.all([
     Message.find({ chat: chatId })

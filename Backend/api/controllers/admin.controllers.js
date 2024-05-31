@@ -143,14 +143,14 @@ export const getDashboard = TryCatch(async (req, res) => {
       Chat.countDocuments(),
     ]);
 
-  const today = new Date();
+    const today = new Date();
 
-  const last7days = new Date();
-  last7days.setDate(last7days.getDate() - 7);
+    const last7Days = new Date();
+    last7Days.setDate(last7Days.getDate() - 7);
 
   const last7DaysMessages = await Message.find({
     createdAt: {
-      $gte: last7days,
+      $gte: last7Days,
       $lte: today,
     },
   }).select("createdAt");
@@ -158,14 +158,14 @@ export const getDashboard = TryCatch(async (req, res) => {
   const messages = new Array(7).fill(0);
   //1 day
   const dayInMiliseconds = 1000 * 60 * 60 * 24;
-
   last7DaysMessages.forEach((message) => {
     const indexApprox =
       (today.getTime() - message.createdAt.getTime()) / dayInMiliseconds;
-
     const index = Math.floor(indexApprox);
+
     messages[6 - index]++;
   });
+
 
   const stats = {
     groupsCount,

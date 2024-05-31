@@ -20,6 +20,7 @@ const connectDB = (uri) => {
     });
 };
 
+
 const sendToken = (res, user, code, message) => {
   const token = jwt.sign(
     {
@@ -31,6 +32,7 @@ const sendToken = (res, user, code, message) => {
   console.log(token);
   return res.status(code).cookie("access_token", token, cookieOptions).json({
     success: true,
+    user,
     message,
   });
 };
