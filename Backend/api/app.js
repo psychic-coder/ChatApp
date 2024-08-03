@@ -26,7 +26,7 @@ const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
 //mongoURI=process.env.MONGO_URI;
-connectDB("mongodb://localhost:27017/ChatterBox");
+connectDB(process.env.MONGO_URI);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -153,7 +153,7 @@ socket.on("disconnect", () => {
 
 app.use(errorMiddleware);
 
-export const adminSecretKey = process.env.ADMIN_SECRET_KEY || "rohitIeeeCs96";
+export const adminSecretKey = process.env.ADMIN_SECRET_KEY ;
 
 const port = 5000;
 export const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
