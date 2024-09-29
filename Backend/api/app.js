@@ -26,7 +26,8 @@ const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
 //mongoURI=process.env.MONGO_URI;
-connectDB(process.env.MONGO_URI);
+// connectDB(process.env.MONGO_URI);
+connectDB("mongodb+srv://rohitganguly450:2dtHsi9mDLAZ87Y5@cluster0.qonqbja.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
