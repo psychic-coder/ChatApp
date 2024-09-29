@@ -1,4 +1,4 @@
-import { compare } from "bcrypt";
+// import { compare } from "bcryptjs";
 import { User } from "../models/user.js";
 import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary } from "../utils/features.js";
 import { TryCatch } from "../middlewares/error.js";
@@ -7,6 +7,7 @@ import { Chat } from "../models/chat.js";
 import { Request } from "../models/request.js";
 import { NEW_REQUEST, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
+import { compareSync } from "bcrypt";
 
 export const newUser = TryCatch(async (req, res, next) => {
   //req.file option is the option we get from multer middleware
@@ -39,7 +40,7 @@ export const login = TryCatch(async (req, res, next) => {
   const user = await User.findOne({ username }).select("+password");
   //the next keyword will automatically call the error middlware
   if (!user) return next(new ErrorHandler("Invalid Credentials !!", 400));
-  const isMatch = await compare(password, user.password);
+  const isMatch = await compareSync(password, user.password);
   if (!isMatch) return next(new ErrorHandler("Invalid Credentials !!", 400));
 
   sendToken(res, user, 200, `Welcome Back ${user.name} !`);
