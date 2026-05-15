@@ -46,6 +46,22 @@ export const login = TryCatch(async (req, res, next) => {
   sendToken(res, user, 200, `Welcome Back ${user.name} !`);
 });
 
+export const resetPassword = TryCatch(async (req, res, next) => {
+  const { username, newPassword } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if (!user) return next(new ErrorHandler("User not found", 404));
+
+  user.password = newPassword;
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Password reset successfully. You can now login with your new password.",
+  });
+});
+
 export const getMyProfile = TryCatch(async (req, res, next) => {
   const user = await User.findById(req.user);
 

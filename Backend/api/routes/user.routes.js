@@ -1,10 +1,10 @@
 
 
 import express from "express";
-import { getMyProfile, login,newUser,logout,searchUser, sendFriendRequest, getMyNotifications, getMyFriends, acceptFriendRequest } from "../controllers/user.controllers.js";
+import { getMyProfile, login,newUser,logout,searchUser, sendFriendRequest, getMyNotifications, getMyFriends, acceptFriendRequest, resetPassword } from "../controllers/user.controllers.js";
 import {  singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
-import { acceptRequestValidator, loginValidator, registerValidator,  sendRequestValidator,  validateHandler } from "../lib/validators.js";
+import { acceptRequestValidator, loginValidator, registerValidator,  sendRequestValidator,  validateHandler, resetPasswordValidator } from "../lib/validators.js";
 const router=express.Router();
 
 /*validateHandler is likely a middleware function that processes the results of the validation defined in registerValidator(). This function checks for validation errors and sends appropriate responses if there are any validation errors.*/
@@ -14,6 +14,7 @@ validateHandler processes the results of those validation rules and handles any 
 validateHandler is executed next to check the results of the validation and handle errors accordingly.*/
 router.post("/new",singleAvatar,registerValidator(),validateHandler,newUser)
 router.post("/login",loginValidator(),validateHandler,login)
+router.put("/reset-password", resetPasswordValidator(), validateHandler, resetPassword)
 
 //after here user must be loggedin to access the routes
 

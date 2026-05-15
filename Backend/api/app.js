@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
@@ -8,19 +10,24 @@ import adminRoute from "../api/routes/admin.routes.js";
 import { connectDB } from "../api/utils/features.js";
 import cors from "cors";
 import { Server } from "socket.io";
-import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.js";
-import { createMessagesInAChat } from "./seeders/chat.js";
+import { createGroupChats, createMessagesInAChat, createSingleChats } from "./seeders/chat.js";
 import { createServer } from "http";
-import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, NEW_MESSAGE_ALERT, ONLINE_USERS, START_TYPING, STOP_TYPING } from "./constants/events.js";
+import {
+  CHAT_JOINED,
+  CHAT_LEAVED,
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  ONLINE_USERS,
+  START_TYPING,
+  STOP_TYPING,
+} from "./constants/events.js";
 import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from "cloudinary";
 import { corsOption } from "./constants/config.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
-
-dotenv.config();
 
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
@@ -45,7 +52,7 @@ const io = new Server(server, {
   cors: corsOption,
 });
 //we're saving the instance of io
-app.set("io",io);
+app.set("io", io);
 
 app.use(express.json());
 //express.urlencoded is used when we send form data from the frontend
@@ -54,8 +61,8 @@ app.use(cookieParser());
 
 // createSingleChats(10);
 // createGroupChats(10);
-//createMessagesInAChat("6652fad5328fb55d8d43b9dc",50)
-
+// createMessagesInAChat("6652fad5328fb55d8d43b9dc",50)
+// console.log("seeding complete")
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
 app.use("/api/v1/admin", adminRoute);
@@ -69,12 +76,12 @@ io.use((socket, next) => {
   cookieParser()(
     socket.request,
     socket.request.res,
-    async (err) => await socketAuthenticator(err, socket, next)
+    async (err) => await socketAuthenticator(err, socket, next),
   );
 });
 
 io.on("connection", (socket) => {
-  const user = socket.user
+  const user = socket.user;
   //console.log(user);
   //we are mapping the value of user._id to socket.id,which means that the user with user._id is connected to that particular socket.id
   userSocketIDs.set(user._id.toString(), socket.id);
@@ -83,8 +90,6 @@ io.on("connection", (socket) => {
   //console.log("A user connected ",socket.id);
 
   socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
-
-    
     const messageForRealTime = {
       content: message,
       _id: uuid(),
@@ -101,8 +106,6 @@ io.on("connection", (socket) => {
       sender: user._id,
       chat: chatId,
     };
-
-      
 
     //in the below code we're getting hold of the socket id's corresponding to the userids
     const membersSocket = getSockets(members);
@@ -121,39 +124,39 @@ io.on("connection", (socket) => {
     }
   });
 
-socket.on(START_TYPING,({members,chatId})=>{
-    const membersSockets=getSockets(members)
-    socket.to(membersSockets).emit(START_TYPING,{chatId})
-})
-socket.on(STOP_TYPING,({members,chatId})=>{
-    const membersSockets=getSockets(members)
-    socket.to(membersSockets).emit(STOP_TYPING,{chatId})
-})
+  socket.on(START_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members);
+    socket.to(membersSockets).emit(START_TYPING, { chatId });
+  });
+  socket.on(STOP_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members);
+    socket.to(membersSockets).emit(STOP_TYPING, { chatId });
+  });
 
-socket.on(CHAT_JOINED, ({ userId, members }) => {
-  onlineUsers.add(userId.toString());
+  socket.on(CHAT_JOINED, ({ userId, members }) => {
+    onlineUsers.add(userId.toString());
 
-  const membersSocket = getSockets(members);
-  io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
-});
+    const membersSocket = getSockets(members);
+    io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
+  });
 
-socket.on(CHAT_LEAVED, ({ userId, members }) => {
-  onlineUsers.delete(userId.toString());
+  socket.on(CHAT_LEAVED, ({ userId, members }) => {
+    onlineUsers.delete(userId.toString());
 
-  const membersSocket = getSockets(members);
-  io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
-});
+    const membersSocket = getSockets(members);
+    io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
+  });
 
-socket.on("disconnect", () => {
-  userSocketIDs.delete(user._id.toString());
-  onlineUsers.delete(user._id.toString());
-  socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
-});
+  socket.on("disconnect", () => {
+    userSocketIDs.delete(user._id.toString());
+    onlineUsers.delete(user._id.toString());
+    socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+  });
 });
 
 app.use(errorMiddleware);
 
-export const adminSecretKey = process.env.ADMIN_SECRET_KEY ;
+export const adminSecretKey = process.env.ADMIN_SECRET_KEY;
 
 const port = process.env.PORT || 5000;
 export const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";

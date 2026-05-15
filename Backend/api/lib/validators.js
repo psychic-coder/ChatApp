@@ -15,6 +15,10 @@ export const loginValidator = () => [
   body("username", "Username should not be empty ").notEmpty(),
   body("password", "Password should not be empty ").notEmpty(),
 ];
+export const resetPasswordValidator = () => [
+  body("username", "Please enter username").notEmpty(),
+  body("newPassword", "Please enter new password").notEmpty(),
+];
 export const newGroupValidator = () => [
   body("name", "Please enter name ").notEmpty(),
   body("members")
