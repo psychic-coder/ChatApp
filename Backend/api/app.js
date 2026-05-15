@@ -25,9 +25,8 @@ dotenv.config();
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
-//mongoURI=process.env.MONGO_URI;
-// connectDB(process.env.MONGO_URI);
-connectDB("mongodb+srv://rohitganguly450:2dtHsi9mDLAZ87Y5@cluster0.qonqbja.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+const mongoURI = process.env.MONGO_URI;
+connectDB(mongoURI);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -156,7 +155,7 @@ app.use(errorMiddleware);
 
 export const adminSecretKey = process.env.ADMIN_SECRET_KEY ;
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 export const envMode = process.env.NODE_ENV.trim() || "PRODUCTION";
 server.listen(port, () => {
   console.log(`Server is running on port ${port} in ${envMode} mode `);
